@@ -35,11 +35,14 @@ Smart Task Manager is a productivity-focused web application that allows users t
   <img width="440" height="210" alt="image" src="https://github.com/user-attachments/assets/68fa11d4-8dd3-49ad-b7cb-4123a0e00eef" />
 </p>
 
+<p align="center">
+  <img width="440" height="230" alt="image" src="https://github.com/user-attachments/assets/b1ba783d-71be-4535-b1d8-2c8e7030b7c9" />
+  <img width="440" height="230" alt="image" src="https://github.com/user-attachments/assets/00ac5045-2163-4815-9eae-db08ce501801" />
+</p>
 
 
-<img width="440" height="110" alt="image" src="https://github.com/user-attachments/assets/b1ba783d-71be-4535-b1d8-2c8e7030b7c9" />
 
-<img width="440" height="110" alt="image" src="https://github.com/user-attachments/assets/00ac5045-2163-4815-9eae-db08ce501801" />
+
 
 
 
