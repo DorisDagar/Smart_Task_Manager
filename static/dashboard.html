@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Task Manager - Dashboard</title>
+  <style>
+    /* === GLOBAL STYLES === */
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(200deg, #7bc1ed, #f5fafa);
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    /* === DASHBOARD CONTAINER === */
+    .dashboard {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 1rem;
+      position: relative;
+    }
+
+    /* === HEADER === */
+    header {
+      text-align: center;
+      margin-bottom: -2rem;
+      
+    }
+
+    header h2 {
+      font-size: 3rem;
+      margin-bottom: 3.5rem;
+      color: #1e2359;
+    }
+
+    
+    /* === TASK SECTIONS === */
+    .task-sections {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 100px;
+    }
+
+    /* === TASK BOXES === */  
+    .task-box {
+      flex: 1 1 300px;
+      background: linear-gradient(100deg, #aaeceb, #f5fafa);
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      padding: 2rem;
+      text-align: center;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+    }
+
+    .task-box:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+
+    .task-box h3 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .task-box p {
+      color: #555;
+    }
+
+    /* === DIFFERENT COLORS FOR BOX TYPES === */
+    .task-box.daily {
+      border-top: 5px solid #3f61dc;
+    }
+
+    .task-box.longterm {
+      border-top: 5px solid #3f61dc;
+    }
+
+    
+    /* === RESPONSIVE DESIGN === */
+    @media (max-width: 600px) {
+      .task-box {
+        padding: 1.5rem;
+      }
+
+      header h2 {
+        font-size: 1.5rem;
+      }
+
+      .floating-add {
+        width: 50px;
+        height: 50px;
+        font-size: 1.6rem;
+      }
+    }
+
+    .history-btn {
+  position: absolute;
+  top: 30px;
+  right: 40px;
+  background: linear-gradient(135deg, #4a6cf7, #5aa1f7);
+  color: white;
+  font-weight: 600;
+  font-size: 15px;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.history-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(74, 108, 247, 0.3);
+  background: linear-gradient(135deg, #5a7dfc, #6db3ff);
+}
+
+/* === PROFILE MENU - Absolute Top Left Corner === */
+.profile-menu {
+  position: absolute;
+  top: -15px;     /* adjust this for tiny vertical gap */
+  left: -150px;    /* adjust this for tiny horizontal gap */
+  z-index: 1000;
+}
+
+#profileIcon {
+  font-size: 95px;   /* bigger icon */
+  cursor: pointer;
+}
+
+/* Larger Profile Icon */
+.profile-icon {
+  width: 75px;
+  height: 75px;
+  background: linear-gradient(135deg, #053ba5, #61adff);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+}
+
+/* Bigger head and body inside the circle */
+.profile-icon::before {
+  content: "";
+  width: 25px;
+  height: 25px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 9px;
+}
+
+.profile-icon::after {
+  content: "";
+  width: 40px;
+  height: 20px;
+  background: white;
+  border-radius: 15px 15px 0 0;
+  position: absolute;
+  bottom: 15px;
+}
+
+/* Hover effect */
+.profile-icon:hover {
+  transform: scale(1.08);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Dropdown stays aligned neatly below the icon */
+.dropdown {
+  display: none;
+  position: absolute;
+  left: 0;         /* stays aligned to icon */
+  top: 65px;       /* slightly below bigger icon */
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.15);
+  z-index: 1001;
+  min-width: 170px;
+  font-family: "Poppins", sans-serif;
+  overflow: hidden;
+  animation: fadeIn 0.2s ease;
+}
+
+/* Dropdown buttons */
+.dropdown button {
+  width: 100%;
+  padding: 12px 18px;
+  text-align: left;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #333;
+  transition: all 0.2s ease;
+}
+
+.dropdown button:hover {
+  background: linear-gradient(135deg, #e3e9ff, #f5f4ff);
+  color: #2a2a72;
+  font-weight: 500;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* === HIGHLIGHTED QUOTE AT TOP === */
+.highlight-quote {
+  text-align: center;
+  background: linear-gradient(135deg, #ebe4d3, #f1d9d7);
+  color: #3d086c;
+  font-size: 2.5rem;
+  font-weight: 600;
+  border-radius: 30px;
+  padding: 10px 25px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+  animation: fadeInQuote 1s ease;
+}
+
+@keyframes fadeInQuote {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Make it responsive */
+@media (max-width: 600px) {
+  .highlight-quote {
+    font-size: 0.95rem;
+    padding: 8px 18px;
+  }
+}
+
+
+  </style>
+</head>
+<body>
+
+  <div class="dashboard">
+  <header>
+  <h2>Hello, {{ username }}! 👋</h2>
+
+  <!-- Motivational Quote Below -->
+  <div class="highlight-quote" id="quoteBox">
+    🌟 "Focus on one thing at a time."
+  </div>
+</header>
+
+
+<!-- Profile icon moved to corner -->
+<div class="profile-menu">
+  <div class="profile-icon" id="profileIcon">
+    <div class="profile-avatar"></div>
+  </div>
+  <div class="dropdown" id="dropdownMenu">
+    <button id="viewHistory">📜 View History</button>
+    <button id="logoutBtn">🚪 Log Out</button>
+  </div>
+</div>
+
+
+    <div class="task-sections">
+      <div class="task-box daily" id="daily">
+        <h3>🗓️ Daily Tasks</h3>
+        <p>View & Set Today’s Tasks</p>
+      </div>
+
+      <div class="task-box longterm" id="long_term">
+        <h3>🎯 Long-Term Tasks</h3>
+        <p>Track Ongoing Goals</p>
+      </div>
+    </div>
+  </div>
+<script>
+  // === Rotating Motivational Quotes ===
+const quotes = [
+  "🌟 Small steps every day lead to big results!",
+  "💪 Stay consistent — progress, not perfection!",
+  "🚀 You are capable of amazing things!",
+  "🧠 Focus on one thing at a time.",
+  "✨ Every day is a fresh start!"
+];
+
+let quoteIndex = 0;
+const quoteBox = document.getElementById("quoteBox");
+
+setInterval(() => {
+  quoteIndex = (quoteIndex + 1) % quotes.length;
+  quoteBox.textContent = quotes[quoteIndex];
+}, 6000); // changes every 6 seconds
+
+const params = new URLSearchParams(window.location.search);
+const u_id = params.get("user_id");
+
+// If the URL contains a user_id, re-store it
+if (u_id) {
+  sessionStorage.setItem("user_id", u_id);
+} else {
+  // If not found even in sessionStorage, redirect to login
+  const savedId = sessionStorage.getItem("user_id");
+  if (!savedId) {
+    alert("Session expired. Please log in again.");
+    window.location.href = "/login";
+  }
+}
+  console.log("User ID from URL:", u_id);
+
+  document.getElementById("daily").addEventListener("click", function() {
+  window.location.href = `/daily_tasks?user_id=${u_id}`;
+});
+  document.getElementById("long_term").addEventListener("click", function() {
+      window.location.href = `/long_term_tasks?user_id=${u_id}`;
+    });
+
+    
+// === Profile Menu Logic ===
+const profileIcon = document.getElementById("profileIcon");
+const dropdownMenu = document.getElementById("dropdownMenu");
+
+profileIcon.addEventListener("click", () => {
+  dropdownMenu.style.display = dropdownMenu.style.display === "block" ? "none" : "block";
+});
+
+// Close dropdown if clicked outside
+window.addEventListener("click", (e) => {
+  if (!profileIcon.contains(e.target) && !dropdownMenu.contains(e.target)) {
+    dropdownMenu.style.display = "none";
+  }
+});
+
+// View History button
+document.getElementById("viewHistory").addEventListener("click", () => {
+  const u_id = sessionStorage.getItem("user_id");
+  if (u_id) {
+    window.location.href = `/history?user_id=${u_id}`;
+  } else {
+    alert("Session expired. Please log in again.");
+    window.location.href = "/login";
+  }
+});
+
+// === Log Out ===
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  sessionStorage.clear();
+  alert("You have been logged out.");
+  window.location.href = "/login";
+});
+
+
+</script>
+
+</body>
+</html>

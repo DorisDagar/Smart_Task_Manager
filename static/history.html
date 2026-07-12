@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Task History</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background-color: #f4f7fb;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #4b7bec;
+      color: white;
+      padding: 15px 25px;
+      border-radius: 10px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+
+    .back-btn {
+      background-color: white;
+      color: #4b7bec;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .back-btn:hover {
+      background-color: #e0e8ff;
+    }
+
+    .table-container {
+      margin-top: 30px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    thead {
+      background-color: #4b7bec;
+      color: white;
+    }
+
+    th, td {
+      padding: 12px 15px;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    tr:hover {
+      background-color: #f1f6ff;
+    }
+
+    .status-completed {
+      color: green;
+      font-weight: 600;
+    }
+
+    .status-pending {
+      color: #e67e22;
+      font-weight: 600;
+    }
+
+    .no-data {
+      text-align: center;
+      color: #777;
+      font-style: italic;
+      padding: 20px;
+    }
+
+    @media (max-width: 768px) {
+      th, td {
+        padding: 8px;
+        font-size: 0.9rem;
+      }
+
+      header {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>📜 Task History</h1>
+  <button class="back-btn" id="backButton">⬅ Back to Dashboard</button>
+  </header>
+ 
+  <div class="table-container">
+    <table id="historyTable">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Task Name</th>
+          <th>Added On</th>
+          <th>Status</th>
+          <th>Completed On</th>
+        </tr>
+      </thead>
+      <tbody id="historyTableBody">
+        <tr><td colspan="5" class="no-data">Loading history...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    async function loadHistory() {
+      const tbody = document.getElementById("historyTableBody");
+      try {
+        const u_id = localStorage.getItem("u_id");
+        const res = await fetch(`http://127.0.0.1:8000/api/task_history?u_id=${u_id}`);
+
+        if (!res.ok) throw new Error("Failed to fetch history");
+        
+        const data = await res.json();
+        const tasks = data.tasks;
+
+        tasks.sort((a, b) => new Date(b.added_on) - new Date(a.added_on));
+
+        tbody.innerHTML = "";
+
+        if (tasks.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" class="no-data">No tasks found</td></tr>`;
+          return;
+        }
+
+        tasks.forEach(task => {
+          const row = document.createElement("tr");
+          const statusClass = task.status === "Completed" ? "status-completed" : "status-pending";
+          row.innerHTML = `
+            <td>${task.type}</td>
+            <td>${task.name}</td>
+            <td>${task.added_on || '-'}</td>
+            <td class="${statusClass}">${task.status}</td>
+            <td>${task.completed_on || '-'}</td>
+          `;
+          tbody.appendChild(row);
+        });
+      } catch (err) {
+        console.error(err);
+        tbody.innerHTML = `<tr><td colspan="5" class="no-data">Error loading history.</td></tr>`;
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", loadHistory);
+
+    // when user clicks back button
+  document.getElementById("backButton").addEventListener("click", () => {
+    const userId = sessionStorage.getItem("user_id"); // if you store user_id in session
+    if (userId) {
+      window.location.href = `/dashboard?user_id=${userId}`;
+    } else {
+      alert("User session expired. Please log in again.");
+      window.location.href = "/login"; // or wherever your login page is
+    }
+  });
+  const urlParams = new URLSearchParams(window.location.search);
+const userId = urlParams.get("user_id");
+if (userId) {
+  sessionStorage.setItem("user_id", userId);
+}
+  </script>
+
+</body>
+</html>

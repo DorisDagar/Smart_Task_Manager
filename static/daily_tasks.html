@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Task Manager - Daily Tasks</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(200deg, #7bc1ed, #f5fafa);
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    .daily-tasks {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 1.5rem;
+      background: linear-gradient(100deg, #b9ecec, #f5fafa);
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid #0e0f15;
+      padding-bottom: -2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    header h2 {
+      font-size: 3rem;
+      color: #03036c;
+    }
+
+    header button {
+      background: none;
+      border: none;
+      font-size: 1.3rem;
+      cursor: pointer;
+      color: #2a2a72;
+      transition: transform 0.2s;
+    }
+
+    header button:hover {
+      transform: scale(1.1);
+    }
+
+    section {
+      margin-bottom: 2rem;
+    }
+
+    section h3 {
+      font-size: 1.2rem;
+      color: #01326a;
+      border-left: 4px solid #01326a;
+      padding-left: 10px;
+      margin-bottom: 1rem;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    li {
+      background: #f9fafc;
+      border-radius: 8px;
+      padding: 0.8rem 1rem;
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.2s ease;
+    }
+
+    li:hover {
+      background: #eef2fb;
+    }
+
+    .task-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-grow: 1;
+    }
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #4a90e2;
+      cursor: pointer;
+    }
+
+    li.completed .task-name {
+      text-decoration: line-through;
+      color: #777;
+    }
+
+    .remove-btn {
+      background: none;
+      border: 1px solid #ff5c5c;
+      color: #ff5c5c;
+      border-radius: 6px;
+      padding: 0.3rem 0.8rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .remove-btn:hover {
+      background: #ff5c5c;
+      color: white;
+    }
+
+    .task-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .task-actions button {
+      flex: 1;
+      background: linear-gradient(135deg, #679fe0, #877bd4);
+      color: #fff;
+      border: none;
+      padding: 0.8rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    .task-actions button:hover {
+      background: linear-gradient(135deg, #3b7bd3, #594bbf);
+      transform: translateY(-2px);
+    }
+    /* ✅ Strike-through effect when a task is marked done */
+    .completed .task-name {
+     text-decoration: line-through;
+     color: gray;
+}
+
+  </style>
+</head>
+<body>
+
+  <div class="daily-tasks">
+    <header>
+      <button class="back">←</button>
+      <h2>Daily Tasks</h2>
+      <button class="calendar">📅</button>
+    </header>
+
+    <section class="today-tasks">
+      <h3>Today’s Tasks</h3>
+      <ul id="task-list"></ul>
+      
+      <div class="task-actions">
+        <button id="add-task">Add Task</button>
+        <button id="mark-all">Mark All Done</button>
+      </div>
+      </section>
+
+      <section class="yesterday-tasks">
+  <h3>Pending from Yesterday</h3>
+  <ul id="yesterday-task-list"></ul>
+</section>
+
+          
+  </div>
+
+ <script>
+document.addEventListener("DOMContentLoaded", async function () {
+  // ✅ Get user_id from URL (used for all requests)
+  const params = new URLSearchParams(window.location.search);
+  const u_id = params.get("user_id");
+
+  console.log("User ID from URL:", u_id);
+
+  const todayTasksList = document.querySelector("#task-list");
+  const yesterdayTasksList = document.querySelector("#yesterday-task-list");
+  const addTaskBtn = document.querySelector("#add-task");
+  const markAllBtn = document.querySelector("#mark-all");
+
+  // ✅ Load tasks
+  async function loadTasks() {
+    try {
+      const res = await fetch(`/api/daily_tasks?user_id=${u_id}`, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to load tasks");
+      const data = await res.json();
+
+      const todayTasks = data.today || [];
+      const yesterdayTasks = data.yesterday_pending || [];
+
+      todayTasksList.innerHTML = "";
+      yesterdayTasksList.innerHTML = "";
+
+      // 🟢 Today’s Tasks
+      todayTasks.forEach(task => {
+        const li = document.createElement("li");
+        li.dataset.t_id = task.t_id;
+        li.classList.toggle("completed", task.is_done);
+        li.innerHTML = `
+          <div class="task-info">
+            <input type="checkbox" ${task.is_done ? "checked" : ""}>
+            <span class="task-name">${task.task}</span>
+          </div>
+          <button class="remove-btn">Remove</button>
+        `;
+        todayTasksList.appendChild(li);
+      });
+
+      // 🟠 Yesterday’s Pending Tasks
+      yesterdayTasks.forEach(task => {
+        const li = document.createElement("li");
+        li.dataset.t_id = task.t_id;
+        li.classList.toggle("completed", task.is_done);
+        li.innerHTML = `
+          <div class="task-info">
+            <input type="checkbox" ${task.is_done ? "checked" : ""}>
+            <span class="task-name">${task.task}</span>
+          </div>
+          <button class="remove-btn">Remove</button>
+        `;
+        yesterdayTasksList.appendChild(li);
+      });
+    } catch (err) {
+      console.error("Error loading tasks:", err);
+    }
+  }
+
+  // ✅ Add new task
+  addTaskBtn.addEventListener("click", async function () {
+    const taskName = prompt("Enter new task:");
+    if (!taskName) return;
+
+    try {
+      const response = await fetch(`/api/daily_tasks?user_id=${u_id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ task: taskName })
+      });
+
+      if (!response.ok) {
+        alert("❌ Failed to add task.");
+        return;
+      }
+
+      await loadTasks(); // 🔄 refresh list
+    } catch (error) {
+      console.error("Error adding task:", error);
+      alert("⚠️ Could not connect to backend.");
+    }
+  });
+
+  // ✅ Delete task (works for both lists)
+  document.body.addEventListener("click", async function (e) {
+    if (e.target.classList.contains("remove-btn")) {
+      const li = e.target.closest("li");
+      const t_id = li.dataset.t_id;
+
+      if (!confirm("Are you sure you want to delete this task?")) return;
+
+      const response = await fetch(`/daily_tasks/${t_id}?user_id=${u_id}`, {
+        method: "DELETE",
+        credentials: "include"
+      });
+
+      if (response.ok) {
+        li.remove();
+      } else {
+        alert("Failed to delete task.");
+      }
+    }
+  });
+
+  // ✅ Mark all tasks as done (syncs to backend)
+  markAllBtn.addEventListener("click", async function () {
+    const checkboxes = todayTasksList.querySelectorAll('input[type="checkbox"]');
+
+    for (const cb of checkboxes) {
+      const li = cb.closest("li");
+      const t_id = li.dataset.t_id;
+
+      // Update UI instantly
+      cb.checked = true;
+      li.classList.add("completed");
+
+      // Sync with backend
+      try {
+        const res = await fetch(`/daily_tasks/${t_id}?user_id=${u_id}&is_done=true`, {
+          method: "PATCH",
+          credentials: "include"
+        });
+        if (!res.ok) console.error("Failed to update task:", await res.text());
+      } catch (err) {
+        console.error("Error updating task:", err);
+      }
+    }
+    console.log("✅ All tasks marked done and synced with backend.");
+  });
+
+  // ✅ Handle manual checkbox ticking — Today’s tasks
+  todayTasksList.addEventListener("change", async function (e) {
+    if (e.target.matches('input[type="checkbox"]')) {
+      const li = e.target.closest("li");
+      const t_id = li.dataset.t_id;
+      const isDone = e.target.checked;
+
+      li.classList.toggle("completed", isDone);
+
+      try {
+        const res = await fetch(`/daily_tasks/${t_id}?user_id=${u_id}&is_done=${isDone}`, {
+          method: "PATCH",
+          credentials: "include"
+        });
+        if (!res.ok) console.error("Failed to update task:", await res.text());
+      } catch (err) {
+        console.error("Error updating task:", err);
+      }
+    }
+  });
+
+  // ✅ Handle checkbox ticking — Yesterday’s tasks
+  yesterdayTasksList.addEventListener("change", async function (e) {
+    if (e.target.matches('input[type="checkbox"]')) {
+      const li = e.target.closest("li");
+      const t_id = li.dataset.t_id;
+      const isDone = e.target.checked;
+
+      li.classList.toggle("completed", isDone);
+
+      try {
+        const res = await fetch(`/daily_tasks/${t_id}?user_id=${u_id}&is_done=${isDone}`, {
+          method: "PATCH",
+          credentials: "include"
+        });
+        if (!res.ok) console.error("Failed to update yesterday’s task:", await res.text());
+      } catch (err) {
+        console.error("Error updating yesterday’s task:", err);
+      }
+    }
+  });
+
+  // ✅ Load tasks immediately
+  await loadTasks();
+
+  // ✅ Go back to Dashboard when clicking the back arrow
+    document.querySelector(".back").addEventListener("click", function () {
+    window.location.href = `/dashboard?user_id=${u_id}`;
+  });
+});
+</script>
+
+</body>
+</html>
