@@ -141,6 +141,3 @@ B.Tech Computer Science & Engineering (Artificial Intelligence)
 
 Indira Gandhi Delhi Technical University for Women (IGDTUW)
 
----
-
-⭐ If you found this project interesting, consider giving it a star!
